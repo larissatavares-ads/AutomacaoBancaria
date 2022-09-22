@@ -8,25 +8,26 @@ namespace AutomacaoBancaria.Ports.Controllers;
 
 [ApiController]
 [Route("titular")]
-public class TitularController : ControllerBase
+public class HomeController : ControllerBase
 {
     private ITitularServices _titularServices;
     private IContaCorrenteServices _contaCorrenteServices;
-    public TitularController(ITitularServices titularServices, IContaCorrenteServices contaCorrenteServices)
+    public HomeController(ITitularServices titularServices, IContaCorrenteServices contaCorrenteServices)
     {
         _titularServices = titularServices;
         _contaCorrenteServices = contaCorrenteServices;
     }
     
     //consultar extrato
-    [HttpPost("consultarExtrato/{cpf}")]
-    public async Task<IActionResult> GetByCpfAsync(
-        [FromRoute] string cpf)
+    [HttpPost("consultarSaldo/{agencia},{conta}")]
+    public async Task<IActionResult> GetByContaCorrenteAsync(
+        [FromRoute] int agencia,
+        [FromRoute] int conta)
     {
-        var titular = await _contaCorrenteServices.ConsultarExtrato(cpf);
+        var titular = await _contaCorrenteServices.ConsultarSaldo(agencia,conta);
         if (titular == null)
             return NotFound();
-        return Ok(new {Saldo = titular.Saldo});
+        return Ok(new {titular.Saldo});
     }
 
     //criar usuario

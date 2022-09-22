@@ -1,5 +1,6 @@
 using AutomacaoBancaria.Domain.Core.Interfaces.Adapters.Sql;
 using AutomacaoBancaria.Domain.Core.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AutomacaoBancaria.Domain.Application.Services;
 
@@ -16,14 +17,32 @@ public class ContaCorrenteServices : IContaCorrenteServices
         return contaCorrente;
     }
 
-    public async Task<ContaCorrente> ConsultarExtrato(string cpf)
+    public async Task<ContaCorrente> ConsultarSaldo(int agencia, int conta)
     {
         try
         {
-            var extrato = await _contaCorrenteRepository.ConsultarExtrato(cpf);
-            return extrato;
+            var consultaAgencia = await _contaCorrenteRepository.ConsultarAgencia(agencia);
+            if (consultaAgencia == null)
+            {
+                throw new AgenciaInexistenteException();
+            }
         }
-        catch (Exception e)
+        catch (AgenciaInexistenteException e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        try
+        {
+            var saldo = await _contaCorrenteRepository.ConsultarSaldo(agencia, conta);
+            if (saldo == null)
+            {
+                throw new ContaInexistenteException();
+            }
+            return saldo;
+        }
+        catch (ContaInexistenteException e)
         {
             Console.WriteLine(e);
             throw;
