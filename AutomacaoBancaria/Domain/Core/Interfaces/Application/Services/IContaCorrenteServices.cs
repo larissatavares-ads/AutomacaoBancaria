@@ -6,4 +6,5 @@ public interface IContaCorrenteServices
 {
     Task<ContaCorrente> ValidarContaCorrente(ContaCorrente contaCorrente);
     Task<ContaCorrente> ConsultarSaldo(int agencia, int conta);
+    Task<ContaCorrente> RealizarDeposito(int agencia, int conta, decimal valorDeposito);
 }

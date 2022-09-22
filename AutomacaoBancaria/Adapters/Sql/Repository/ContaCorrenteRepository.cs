@@ -28,6 +28,17 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
 
         }
     }
+    public async Task<ContaCorrente> ConsultarAgencia(int agencia)
+    {
+        using (IDbConnection conexao = new SqlConnection(_connectionString))
+        {
+            conexao.Open();
+            var consultaAgencia =
+                (await conexao.QueryAsync<ContaCorrente>(
+                    $"SELECT * FROM AgenciaTab WHERE AgenciaNum='{agencia}';")).FirstOrDefault();
+            return consultaAgencia;
+        }
+    }
     public async Task<ContaCorrente> ConsultarSaldo(int agencia, int conta)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))
@@ -39,15 +50,16 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             return consultaSaldo;
         }
     }
-    public async Task<ContaCorrente> ConsultarAgencia(int agencia)
+    public async Task<ContaCorrente> EfetivarDeposito(int agencia, int conta, decimal novoSaldo)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))
         {
             conexao.Open();
-            var consultaAgencia =
+            var efetivarDeposito =
                 (await conexao.QueryAsync<ContaCorrente>(
-                    $"SELECT * FROM AgenciaTabela WHERE AgenciaLista='{agencia}';")).FirstOrDefault();
-            return consultaAgencia;
+                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';" +
+                    $"SELECT * FROM ContaCorrente;")).FirstOrDefault();
+            return efetivarDeposito;
         }
     }
 }

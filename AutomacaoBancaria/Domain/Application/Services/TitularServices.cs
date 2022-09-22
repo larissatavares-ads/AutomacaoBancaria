@@ -17,19 +17,4 @@ public class TitularServices : ITitularServices
         await _titularRepository.CriarTitular(titular);
         return titular;
     }
-
-    
-    
-    
-    
-    
-    
-    
-    public bool ValidarCpf(string cpf)
-    {
-        string valor = cpf.Replace(".", "").Replace("-", "");
-        if (valor.Length != 11)
-            return false;
-        return true;
-    }
 }

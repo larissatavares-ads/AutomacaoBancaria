@@ -18,20 +18,30 @@ public class HomeController : ControllerBase
         _contaCorrenteServices = contaCorrenteServices;
     }
     
-    //consultar extrato
-    [HttpPost("consultarSaldo/{agencia},{conta}")]
+    //consultar saldo
+    [HttpGet("consultarSaldo/{agencia},{conta}")]
     public async Task<IActionResult> GetByContaCorrenteAsync(
         [FromRoute] int agencia,
         [FromRoute] int conta)
     {
         var titular = await _contaCorrenteServices.ConsultarSaldo(agencia,conta);
-        if (titular == null)
-            return NotFound();
         return Ok(new {titular.Saldo});
     }
+    
+    //depósito conta corrente
+    [HttpPut("realizarDeposito/{agencia},{conta},{valorDeposito}")]
+    public async Task<IActionResult> PutDepositoAsync(
+        [FromRoute] int agencia,
+        [FromRoute] int conta,
+        [FromRoute] decimal valorDeposito)
+    {
+        var titular = await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
+        return Ok("Depósito realizado com sucesso.");
+    }
+    
 
     //criar usuario
-    [HttpPost("validarTitular")]
+    [HttpPost("criarTitular")]
     public async Task<IActionResult> PostAsync(
         [FromBody] TitularViewModel model)
     {

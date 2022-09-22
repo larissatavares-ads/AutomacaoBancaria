@@ -10,9 +10,10 @@ public class ContaCorrente
     public Titular Titular { get; set; }
 
 
-    public void Creditar(decimal valor)
+    public decimal Creditar(decimal valorDeposito)
     {
-        Saldo += valor;
+        var novoSaldo = Saldo += valorDeposito;
+        return novoSaldo;
     }
 
     public void Debitar(decimal valor, ContaCorrente contaDestino)

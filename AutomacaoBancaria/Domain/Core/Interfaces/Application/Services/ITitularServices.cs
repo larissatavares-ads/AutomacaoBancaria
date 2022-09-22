@@ -5,5 +5,4 @@ namespace AutomacaoBancaria.Domain.Core.Interfaces.Application.Services;
 public interface ITitularServices
 {
     Task<Titular> FidelizarTitular(Titular titular);
-    public bool ValidarCpf(string cpf);
 }

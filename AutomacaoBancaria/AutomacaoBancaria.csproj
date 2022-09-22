@@ -16,6 +16,7 @@
       <Compile Remove="Controllers\**" />
       <Compile Remove="WeatherForecast.cs" />
       <Compile Remove="Domain\Core\Interfaces\Adapters\Sql\TitularRepository.cs" />
+      <Compile Remove="Domain\Core\Models\OperacaoFinanceiraException.cs" />
     </ItemGroup>
 
     <ItemGroup>
