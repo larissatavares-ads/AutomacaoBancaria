@@ -8,4 +8,7 @@ public interface IContaCorrenteRepository
     Task<ContaCorrente> ConsultarSaldo(int agencia, int conta);
     Task<ContaCorrente> ConsultarAgencia(int agencia);
     Task<ContaCorrente> EfetivarDeposito(int agencia, int conta, decimal novoSaldo);
+    Task EfetivarSaque(int agencia, int conta, decimal novoSaldo);
+    Task LogCredito(Log log);
+    Task LogDebito(Log log);
 }

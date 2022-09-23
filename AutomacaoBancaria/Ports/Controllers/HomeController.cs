@@ -35,11 +35,23 @@ public class HomeController : ControllerBase
         [FromRoute] int conta,
         [FromRoute] decimal valorDeposito)
     {
-        var titular = await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
+        await _contaCorrenteServices.LogCredito(agencia,conta,valorDeposito);
+        await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
         return Ok("Depósito realizado com sucesso.");
     }
     
-
+    //saque conta corrente
+    [HttpPut("realizarSaque/{agencia},{conta},{valorSaque}")]
+    public async Task<IActionResult> PutSaqueAsync(
+        [FromRoute] int agencia,
+        [FromRoute] int conta,
+        [FromRoute] decimal valorSaque)
+    {
+        await _contaCorrenteServices.LogDebito(agencia,conta,valorSaque);
+        await _contaCorrenteServices.RealizarSaque(agencia,conta,valorSaque);
+        return Ok("Saque realizado com sucesso.");
+    }
+    
     //criar usuario
     [HttpPost("criarTitular")]
     public async Task<IActionResult> PostAsync(
@@ -53,7 +65,8 @@ public class HomeController : ControllerBase
         await _titularServices.FidelizarTitular(titular);
         return Ok(titular);
     }
-    //Criar conta corrente
+    
+    //criar conta corrente
     [HttpPost("criarContaCorrente")]
     public async Task<IActionResult> PostAsync(
         [FromBody] ContaCorrenteViewModel model)
@@ -66,6 +79,6 @@ public class HomeController : ControllerBase
             CpfTitular = model.CpfTitular
         };
         await _contaCorrenteServices.ValidarContaCorrente(contaCorrente);
-        return Ok(contaCorrente);
+        return Ok("Conta Corrente criada com sucesso.");
     }
 }

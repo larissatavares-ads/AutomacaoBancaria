@@ -62,4 +62,35 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             return efetivarDeposito;
         }
     }
+    public async Task EfetivarSaque(int agencia, int conta, decimal novoSaldo)
+    {
+        using (IDbConnection conexao = new SqlConnection(_connectionString))
+        {
+            conexao.Open();
+            await conexao.QueryAsync<ContaCorrente>(
+                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';");
+        }
+    }
+    public async Task LogCredito(Log log)
+    {
+        using (IDbConnection conexao = new SqlConnection(_connectionString))
+        {
+            conexao.Open();
+            await conexao
+                .ExecuteAsync
+                ($"INSERT INTO LogTransacao (DataLog,CodigoLog,AgenciaLog,ContaLog,ValorLog) " +
+                 $"VALUES ((SELECT GETDATE()), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
+        }
+    }
+    public async Task LogDebito(Log log)
+    {
+        using (IDbConnection conexao = new SqlConnection(_connectionString))
+        {
+            conexao.Open();
+            await conexao
+                .ExecuteAsync
+                ($"INSERT INTO LogTransacao (DataLog,CodigoLog,AgenciaLog,ContaLog,ValorLog) " +
+                 $"VALUES ((SELECT GETDATE()), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
+        }
+    }
 }

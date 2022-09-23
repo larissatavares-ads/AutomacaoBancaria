@@ -8,19 +8,18 @@ public class ContaCorrente
     public string CpfTitular { get; set; }
     
     public Titular Titular { get; set; }
-
-
     public decimal Creditar(decimal valorDeposito)
     {
         var novoSaldo = Saldo += valorDeposito;
         return novoSaldo;
     }
 
-    public void Debitar(decimal valor, ContaCorrente contaDestino)
+    public decimal Debitar(decimal valor)
     {
-        if(valor < Saldo)
-            throw new ArgumentException("Seu saldo é insuficiente para transferencia", nameof(valor));
-        Saldo -= valor;
-        contaDestino.Creditar(valor);
+        if(Saldo < valor)
+            throw new SaldoInsuficienteException("Seu saldo é insuficiente para saque");
+        var novoSaldo = Saldo -= valor;
+        return novoSaldo;
     }
+    
 }
