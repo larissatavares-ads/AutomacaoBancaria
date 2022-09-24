@@ -39,15 +39,33 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             return consultaAgencia;
         }
     }
-    public async Task<ContaCorrente> ConsultarSaldo(int agencia, int conta)
+    public async Task<ContaCorrente> ConsultarConta(int agencia, int conta)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))
         {
             conexao.Open();
-            var consultaSaldo =
+            var consultaConta =
                 (await conexao.QueryAsync<ContaCorrente>(
                     $"SELECT * FROM ContaCorrente WHERE Agencia='{agencia}' AND Conta='{conta}';")).FirstOrDefault();
-            return consultaSaldo;
+            return consultaConta;
+        }
+    }
+    
+    public async Task<List<Log>> ConsultarExtrato(int agencia, int conta, string dataInicialSql, string dataFinalSql)
+    {
+        using (IDbConnection conexao = new SqlConnection(_connectionString))
+        {
+            conexao.Open();
+            // var consultaExtrato =
+            //     (await conexao.QueryAsync<Log>(
+            //         $"SELECT * FROM LogTransacao WHERE AgenciaLog='{agencia}' AND ContaLog='{conta}' " +
+            //         $"AND (DataLog BETWEEN '{dataInicialSql}' AND '{dataFinalSql}');")).ToList();
+            
+            
+            var consultaExtrato =
+                (await conexao.QueryAsync<Log>(
+                    $"SELECT * FROM LogTransacao WHERE AgenciaLog='{agencia}' AND ContaLog='{conta}' AND (DataLog BETWEEN '{dataInicialSql}' AND '{dataFinalSql}');")).ToList();
+            return consultaExtrato;
         }
     }
     public async Task<ContaCorrente> EfetivarDeposito(int agencia, int conta, decimal novoSaldo)
@@ -79,7 +97,7 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             await conexao
                 .ExecuteAsync
                 ($"INSERT INTO LogTransacao (DataLog,CodigoLog,AgenciaLog,ContaLog,ValorLog) " +
-                 $"VALUES ((SELECT GETDATE()), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
+                 $"VALUES ((SELECT CONVERT(DATE, GETDATE(), 103)), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
         }
     }
     public async Task LogDebito(Log log)
@@ -90,7 +108,7 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             await conexao
                 .ExecuteAsync
                 ($"INSERT INTO LogTransacao (DataLog,CodigoLog,AgenciaLog,ContaLog,ValorLog) " +
-                 $"VALUES ((SELECT GETDATE()), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
+                 $"VALUES ((SELECT CONVERT(DATE, GETDATE(), 103)), @CodigoLog, @AgenciaLog, @ContaLog, @ValorLog);", log);
         }
     }
 }

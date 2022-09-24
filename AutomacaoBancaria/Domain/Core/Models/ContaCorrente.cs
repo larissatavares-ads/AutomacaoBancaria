@@ -13,7 +13,6 @@ public class ContaCorrente
         var novoSaldo = Saldo += valorDeposito;
         return novoSaldo;
     }
-
     public decimal Debitar(decimal valor)
     {
         if(Saldo < valor)
@@ -21,5 +20,4 @@ public class ContaCorrente
         var novoSaldo = Saldo -= valor;
         return novoSaldo;
     }
-    
 }

@@ -18,9 +18,25 @@ public class HomeController : ControllerBase
         _contaCorrenteServices = contaCorrenteServices;
     }
     
+    //consultar extrato
+    [HttpGet("consultarExtrato/{agencia},{conta},{dataInicial},{dataFinal}")]
+    public async Task<IActionResult> GetExtratoByContaCorrenteAsync(
+        [FromRoute] int agencia,
+        [FromRoute] int conta,
+        [FromRoute] string dataInicial,
+        [FromRoute] string dataFinal)
+    {
+        var titular = await _contaCorrenteServices.ConsultarExtrato(agencia,conta,dataInicial,dataFinal);
+        
+        //var texto = $"EXTRATO\r\nData Inicial ({dataInicial}) -- Data Final ({dataFinal})\r\n";
+       
+        
+        return Ok(titular);
+    }
+    
     //consultar saldo
     [HttpGet("consultarSaldo/{agencia},{conta}")]
-    public async Task<IActionResult> GetByContaCorrenteAsync(
+    public async Task<IActionResult> GetSaldoByContaCorrenteAsync(
         [FromRoute] int agencia,
         [FromRoute] int conta)
     {
@@ -35,8 +51,8 @@ public class HomeController : ControllerBase
         [FromRoute] int conta,
         [FromRoute] decimal valorDeposito)
     {
-        await _contaCorrenteServices.LogCredito(agencia,conta,valorDeposito);
         await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
+        await _contaCorrenteServices.LogCredito(agencia,conta,valorDeposito);
         return Ok("Depósito realizado com sucesso.");
     }
     
@@ -47,12 +63,12 @@ public class HomeController : ControllerBase
         [FromRoute] int conta,
         [FromRoute] decimal valorSaque)
     {
-        await _contaCorrenteServices.LogDebito(agencia,conta,valorSaque);
         await _contaCorrenteServices.RealizarSaque(agencia,conta,valorSaque);
+        await _contaCorrenteServices.LogDebito(agencia,conta,valorSaque);
         return Ok("Saque realizado com sucesso.");
     }
     
-    //criar usuario
+    //criar titular
     [HttpPost("criarTitular")]
     public async Task<IActionResult> PostAsync(
         [FromBody] TitularViewModel model)

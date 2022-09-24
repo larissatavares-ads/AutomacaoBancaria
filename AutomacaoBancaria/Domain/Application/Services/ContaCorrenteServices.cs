@@ -1,5 +1,6 @@
 using AutomacaoBancaria.Domain.Core.Interfaces.Adapters.Sql;
 using AutomacaoBancaria.Domain.Core.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AutomacaoBancaria.Domain.Application.Services;
 
@@ -33,7 +34,7 @@ public class ContaCorrenteServices : IContaCorrenteServices
 
         try
         {
-            var saldo = await _contaCorrenteRepository.ConsultarSaldo(agencia, conta);
+            var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
             if (saldo == null)
             {
                 throw new ContaInexistenteException("Conta inexistente.");
@@ -46,7 +47,55 @@ public class ContaCorrenteServices : IContaCorrenteServices
             throw;
         }
     }
-    
+    public async Task<List<Log>> ConsultarExtrato(int agencia, int conta, string dataInicial, string dataFinal)
+    {
+        var conversor = new Log();
+        try
+        {
+            var consultaAgencia = await _contaCorrenteRepository.ConsultarAgencia(agencia);
+            if (consultaAgencia == null)
+                throw new AgenciaInexistenteException("Agência inexistente.");
+        }
+        catch (AgenciaInexistenteException e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        try
+        {
+            var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
+            if (saldo == null)
+                throw new ContaInexistenteException("Conta inexistente.");
+        }
+        catch (ContaInexistenteException e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        try
+        {
+            
+            var conversorDataInicial = conversor.ConversorDataInicial(dataInicial);
+            var conversorDataFinal =  conversor.ConversorDataFinal(dataFinal);
+            conversor.TestarData(conversorDataInicial, conversorDataFinal);
+            
+            
+            var consultarExtrato = await _contaCorrenteRepository.ConsultarExtrato(agencia,conta,dataInicial,dataFinal);
+            
+            if (consultarExtrato == null)
+                throw new DataIncorretaException("Data incorreta.");
+            
+            
+            
+            return consultarExtrato;
+        }
+        catch (DataIncorretaException e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
     public async Task<ContaCorrente> RealizarDeposito(int agencia, int conta, decimal valorDeposito)
     {
         try
@@ -65,7 +114,7 @@ public class ContaCorrenteServices : IContaCorrenteServices
 
         try
         {
-            var saldo = await _contaCorrenteRepository.ConsultarSaldo(agencia, conta);
+            var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
             if (saldo == null)
             {
                 throw new ContaInexistenteException("Conta inexistente.");
@@ -99,7 +148,7 @@ public class ContaCorrenteServices : IContaCorrenteServices
 
         try
         {
-            var saldo = await _contaCorrenteRepository.ConsultarSaldo(agencia, conta);
+            var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
             if (saldo == null)
             {
                 throw new ContaInexistenteException("Conta inexistente.");
