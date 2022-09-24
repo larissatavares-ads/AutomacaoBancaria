@@ -19,29 +19,31 @@ public class HomeController : ControllerBase
     }
     
     //consultar extrato
-    [HttpGet("consultarExtrato/{agencia},{conta},{dataInicial},{dataFinal}")]
+    [HttpGet("consultarExtrato")]
     public async Task<IActionResult> GetExtratoByContaCorrenteAsync(
-        [FromRoute] int agencia,
-        [FromRoute] int conta,
-        [FromRoute] string dataInicial,
-        [FromRoute] string dataFinal)
+        [FromQuery] int agencia,
+        [FromQuery] int conta,
+        [FromQuery] string dataInicial,
+        [FromQuery] string dataFinal)
     {
-        var titular = await _contaCorrenteServices.ConsultarExtrato(agencia,conta,dataInicial,dataFinal);
-        
-        //var texto = $"EXTRATO\r\nData Inicial ({dataInicial}) -- Data Final ({dataFinal})\r\n";
-       
-        
-        return Ok(titular);
+        var lista = await _contaCorrenteServices.ConsultarExtrato(agencia,conta,dataInicial,dataFinal);
+        var extrato = lista.Select(log => new {log.DataLog, ValorLog = log.ToString() });
+        var erro = lista.Select(log => new {log.Erro, log.Mensagem}).FirstOrDefault();
+        if (erro.Erro)
+            return BadRequest(new { erro.Mensagem });
+        return Ok(extrato);
     }
     
     //consultar saldo
-    [HttpGet("consultarSaldo/{agencia},{conta}")]
+    [HttpGet("consultarSaldo")]
     public async Task<IActionResult> GetSaldoByContaCorrenteAsync(
-        [FromRoute] int agencia,
-        [FromRoute] int conta)
+        [FromQuery] int agencia,
+        [FromQuery] int conta)
     {
-        var titular = await _contaCorrenteServices.ConsultarSaldo(agencia,conta);
-        return Ok(new {titular.Saldo});
+        var saldo = await _contaCorrenteServices.ConsultarSaldo(agencia,conta);
+        if (saldo.Erro)
+            return BadRequest(new {saldo.Mensagem});
+        return Ok(new {saldo.Saldo});
     }
     
     //depósito conta corrente
@@ -51,7 +53,9 @@ public class HomeController : ControllerBase
         [FromRoute] int conta,
         [FromRoute] decimal valorDeposito)
     {
-        await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
+        var deposito = await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
+        if (deposito.Erro)
+            return BadRequest(new {deposito.Mensagem});
         await _contaCorrenteServices.LogCredito(agencia,conta,valorDeposito);
         return Ok("Depósito realizado com sucesso.");
     }
@@ -63,7 +67,9 @@ public class HomeController : ControllerBase
         [FromRoute] int conta,
         [FromRoute] decimal valorSaque)
     {
-        await _contaCorrenteServices.RealizarSaque(agencia,conta,valorSaque);
+        var saque = await _contaCorrenteServices.RealizarSaque(agencia,conta,valorSaque);
+        if (saque.Erro)
+            return BadRequest(new {saque.Mensagem});
         await _contaCorrenteServices.LogDebito(agencia,conta,valorSaque);
         return Ok("Saque realizado com sucesso.");
     }

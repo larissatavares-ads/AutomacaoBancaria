@@ -1,6 +1,5 @@
 using AutomacaoBancaria.Domain.Core.Interfaces.Adapters.Sql;
 using AutomacaoBancaria.Domain.Core.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AutomacaoBancaria.Domain.Application.Services;
 
@@ -15,7 +14,6 @@ public class ContaCorrenteServices : IContaCorrenteServices
     {
         await _contaCorrenteRepository.CriarContaCorrente(contaCorrente);
     }
-    
     public async Task<ContaCorrente> ConsultarSaldo(int agencia, int conta)
     {
         try
@@ -28,8 +26,11 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (AgenciaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Agência inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
         }
 
         try
@@ -43,13 +44,15 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (ContaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Conta inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
         }
     }
     public async Task<List<Log>> ConsultarExtrato(int agencia, int conta, string dataInicial, string dataFinal)
     {
-        var conversor = new Log();
         try
         {
             var consultaAgencia = await _contaCorrenteRepository.ConsultarAgencia(agencia);
@@ -58,42 +61,45 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (AgenciaInexistenteException e)
         {
+            var ex = new List<Log>
+            {
+                new Log
+                {
+                    Erro = true,
+                    Mensagem = "Agencia inexistente"
+                }
+            };
             Console.WriteLine(e);
-            throw;
+            return ex;
         }
         try
         {
             var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
             if (saldo == null)
                 throw new ContaInexistenteException("Conta inexistente.");
-        }
-        catch (ContaInexistenteException e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-
-        try
-        {
             
-            var conversorDataInicial = conversor.ConversorDataInicial(dataInicial);
-            var conversorDataFinal =  conversor.ConversorDataFinal(dataFinal);
-            conversor.TestarData(conversorDataInicial, conversorDataFinal);
+            var conversorDataInicial = saldo.ConversorDataInicial(dataInicial);
+            var conversorDataFinal =  saldo.ConversorDataFinal(dataFinal);
+            saldo.TestarData(conversorDataInicial, conversorDataFinal);
             
-            
-            var consultarExtrato = await _contaCorrenteRepository.ConsultarExtrato(agencia,conta,dataInicial,dataFinal);
+            var consultarExtrato = await _contaCorrenteRepository.ConsultarExtrato(agencia,conta,conversorDataInicial,conversorDataFinal);
             
             if (consultarExtrato == null)
                 throw new DataIncorretaException("Data incorreta.");
-            
-            
-            
             return consultarExtrato;
         }
-        catch (DataIncorretaException e)
+        catch (ContaInexistenteException e)
         {
+            var ex = new List<Log>
+            {
+                new Log
+                {
+                    Erro = true,
+                    Mensagem = "Conta inexistente"
+                }
+            };
             Console.WriteLine(e);
-            throw;
+            return ex;
         }
     }
     public async Task<ContaCorrente> RealizarDeposito(int agencia, int conta, decimal valorDeposito)
@@ -108,8 +114,11 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (AgenciaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Agência inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
         }
 
         try
@@ -125,12 +134,14 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (ContaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Conta inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
         }
     }
-
-    public async Task RealizarSaque(int agencia, int conta, decimal valorSaque)
+    public async Task<ContaCorrente> RealizarSaque(int agencia, int conta, decimal valorSaque)
     {
         try
         {
@@ -142,10 +153,12 @@ public class ContaCorrenteServices : IContaCorrenteServices
         }
         catch (AgenciaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Agência inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
         }
-
         try
         {
             var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
@@ -153,16 +166,28 @@ public class ContaCorrenteServices : IContaCorrenteServices
             {
                 throw new ContaInexistenteException("Conta inexistente.");
             }
+
             var novoSaldo = saldo.Debitar(valorSaque);
-            await _contaCorrenteRepository.EfetivarSaque(agencia,conta,novoSaldo);
+            var saque = await _contaCorrenteRepository.EfetivarSaque(agencia, conta, novoSaldo);
+            return saque;
         }
         catch (ContaInexistenteException e)
         {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Conta inexistente";
             Console.WriteLine(e);
-            throw;
+            return erro;
+        }
+        catch (SaldoInsuficienteException e)
+        {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = "Seu saldo é insuficiente para saque.";
+            Console.WriteLine(e);
+            return erro;
         }
     }
-
     public async Task LogCredito(int agencia, int conta, decimal valorDeposito)
     {
         var log = new Log

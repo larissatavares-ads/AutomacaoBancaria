@@ -25,7 +25,6 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
                 .ExecuteAsync(
                     "INSERT INTO ContaCorrente (Conta, Agencia, Saldo, CpfTitular) VALUES (@Conta, @Agencia, @Saldo, @CpfTitular);",
                     contaCorrente);
-
         }
     }
     public async Task<ContaCorrente> ConsultarAgencia(int agencia)
@@ -50,21 +49,15 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             return consultaConta;
         }
     }
-    
-    public async Task<List<Log>> ConsultarExtrato(int agencia, int conta, string dataInicialSql, string dataFinalSql)
+    public async Task<List<Log>> ConsultarExtrato(int agencia, int conta, DateTime dataInicialSql, DateTime dataFinalSql)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))
         {
             conexao.Open();
-            // var consultaExtrato =
-            //     (await conexao.QueryAsync<Log>(
-            //         $"SELECT * FROM LogTransacao WHERE AgenciaLog='{agencia}' AND ContaLog='{conta}' " +
-            //         $"AND (DataLog BETWEEN '{dataInicialSql}' AND '{dataFinalSql}');")).ToList();
-            
-            
             var consultaExtrato =
                 (await conexao.QueryAsync<Log>(
-                    $"SELECT * FROM LogTransacao WHERE AgenciaLog='{agencia}' AND ContaLog='{conta}' AND (DataLog BETWEEN '{dataInicialSql}' AND '{dataFinalSql}');")).ToList();
+                    $"SELECT CodigoLog,AgenciaLog,ContaLog,ValorLog,CONVERT(VARCHAR(10),DataLog,103) AS DataLog FROM LogTransacao WHERE AgenciaLog='{agencia}' AND ContaLog='{conta}' " +
+                    $"AND DataLog BETWEEN '{dataInicialSql.ToString("yyyyMMdd")}' AND '{dataFinalSql.ToString("yyyyMMdd")}';")).ToList();
             return consultaExtrato;
         }
     }
@@ -80,13 +73,14 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
             return efetivarDeposito;
         }
     }
-    public async Task EfetivarSaque(int agencia, int conta, decimal novoSaldo)
+    public async Task<ContaCorrente> EfetivarSaque(int agencia, int conta, decimal novoSaldo)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))
         {
             conexao.Open();
-            await conexao.QueryAsync<ContaCorrente>(
-                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';");
+            var saldo = (await conexao.QueryAsync<ContaCorrente>(
+                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';")).FirstOrDefault();
+            return saldo;
         }
     }
     public async Task LogCredito(Log log)
