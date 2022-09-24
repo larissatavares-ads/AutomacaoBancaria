@@ -79,7 +79,8 @@ public class ContaCorrenteRepository : IContaCorrenteRepository
         {
             conexao.Open();
             var saldo = (await conexao.QueryAsync<ContaCorrente>(
-                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';")).FirstOrDefault();
+                    $"UPDATE ContaCorrente SET Saldo='{novoSaldo}' WHERE Agencia='{agencia}' AND Conta='{conta}';" +
+                    $"SELECT * FROM ContaCorrente;")).FirstOrDefault();
             return saldo;
         }
     }

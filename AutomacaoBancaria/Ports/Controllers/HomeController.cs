@@ -47,11 +47,11 @@ public class HomeController : ControllerBase
     }
     
     //depósito conta corrente
-    [HttpPut("realizarDeposito/{agencia},{conta},{valorDeposito}")]
+    [HttpPut("realizarDeposito")]
     public async Task<IActionResult> PutDepositoAsync(
-        [FromRoute] int agencia,
-        [FromRoute] int conta,
-        [FromRoute] decimal valorDeposito)
+        [FromQuery] int agencia,
+        [FromQuery] int conta,
+        [FromQuery] decimal valorDeposito)
     {
         var deposito = await _contaCorrenteServices.RealizarDeposito(agencia,conta,valorDeposito);
         if (deposito.Erro)
@@ -61,11 +61,11 @@ public class HomeController : ControllerBase
     }
     
     //saque conta corrente
-    [HttpPut("realizarSaque/{agencia},{conta},{valorSaque}")]
+    [HttpPut("realizarSaque")]
     public async Task<IActionResult> PutSaqueAsync(
-        [FromRoute] int agencia,
-        [FromRoute] int conta,
-        [FromRoute] decimal valorSaque)
+        [FromQuery] int agencia,
+        [FromQuery] int conta,
+        [FromQuery] decimal valorSaque)
     {
         var saque = await _contaCorrenteServices.RealizarSaque(agencia,conta,valorSaque);
         if (saque.Erro)

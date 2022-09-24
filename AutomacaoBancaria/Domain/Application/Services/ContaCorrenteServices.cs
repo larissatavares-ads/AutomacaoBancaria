@@ -72,18 +72,21 @@ public class ContaCorrenteServices : IContaCorrenteServices
             Console.WriteLine(e);
             return ex;
         }
+
         try
         {
             var saldo = await _contaCorrenteRepository.ConsultarConta(agencia, conta);
             if (saldo == null)
                 throw new ContaInexistenteException("Conta inexistente.");
-            
+
             var conversorDataInicial = saldo.ConversorDataInicial(dataInicial);
-            var conversorDataFinal =  saldo.ConversorDataFinal(dataFinal);
+            var conversorDataFinal = saldo.ConversorDataFinal(dataFinal);
             saldo.TestarData(conversorDataInicial, conversorDataFinal);
-            
-            var consultarExtrato = await _contaCorrenteRepository.ConsultarExtrato(agencia,conta,conversorDataInicial,conversorDataFinal);
-            
+
+            var consultarExtrato =
+                await _contaCorrenteRepository.ConsultarExtrato(agencia, conta, conversorDataInicial,
+                    conversorDataFinal);
+
             if (consultarExtrato == null)
                 throw new DataIncorretaException("Data incorreta.");
             return consultarExtrato;
@@ -96,6 +99,19 @@ public class ContaCorrenteServices : IContaCorrenteServices
                 {
                     Erro = true,
                     Mensagem = "Conta inexistente"
+                }
+            };
+            Console.WriteLine(e);
+            return ex;
+        }
+        catch (DataIncorretaException e)
+        {
+            var ex = new List<Log>
+            {
+                new Log
+                {
+                    Erro = true,
+                    Mensagem = "Data final deve ser maior ou igual a data inicial"
                 }
             };
             Console.WriteLine(e);
