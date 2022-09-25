@@ -84,7 +84,9 @@ public class HomeController : ControllerBase
             Nome = model.Nome,
             Cpf = model.Cpf
         };
-        await _titularServices.FidelizarTitular(titular);
+        var retorno = await _titularServices.FidelizarTitular(titular);
+        if (retorno.Erro)
+            return BadRequest(new { retorno.Mensagem });
         return Ok(titular);
     }
     
@@ -100,7 +102,9 @@ public class HomeController : ControllerBase
             Saldo = model.Saldo,
             CpfTitular = model.CpfTitular
         };
-        await _contaCorrenteServices.ValidarContaCorrente(contaCorrente);
+        var retorno = await _contaCorrenteServices.ValidarContaCorrente(contaCorrente);
+        if (retorno.Erro)
+            return BadRequest(new { retorno.Mensagem });
         return Ok("Conta Corrente criada com sucesso.");
     }
 }

@@ -1,4 +1,4 @@
-using System.Security.Cryptography.X509Certificates;
+using System.Data.SqlClient;
 using AutomacaoBancaria.Domain.Core.Interfaces.Adapters.Sql;
 using AutomacaoBancaria.Domain.Core.Interfaces.Application.Services;
 using AutomacaoBancaria.Domain.Core.Models;
@@ -14,7 +14,18 @@ public class TitularServices : ITitularServices
     }
     public async Task<Titular> FidelizarTitular(Titular titular)
     {
-        await _titularRepository.CriarTitular(titular);
-        return titular;
+        try
+        {
+            await _titularRepository.CriarTitular(titular);
+            return titular;
+        }
+        catch (Exception e)
+        {
+            var erro = new Titular();
+            erro.Erro = true;
+            erro.Mensagem = e.Message;
+            Console.WriteLine(e);
+            return erro;
+        }
     }
 }

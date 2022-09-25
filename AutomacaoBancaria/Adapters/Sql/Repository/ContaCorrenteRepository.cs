@@ -10,12 +10,10 @@ namespace AutomacaoBancaria.Adapters.Sql.Repository;
 public class ContaCorrenteRepository : IContaCorrenteRepository
 {
     private string _connectionString;
-
     public ContaCorrenteRepository(ConnectionStringSettings settings)
     {
         _connectionString = settings.ConnectionString();
     }
-
     public async Task CriarContaCorrente(ContaCorrente contaCorrente)
     {
         using (IDbConnection conexao = new SqlConnection(_connectionString))

@@ -4,7 +4,7 @@ namespace AutomacaoBancaria.Domain.Core.Interfaces.Adapters.Sql;
 
 public interface IContaCorrenteServices
 {
-    Task ValidarContaCorrente(ContaCorrente contaCorrente);
+    Task<ContaCorrente> ValidarContaCorrente(ContaCorrente contaCorrente);
     Task<ContaCorrente> ConsultarSaldo(int agencia, int conta);
     Task<List<Log>> ConsultarExtrato(int agencia, int conta, string dataInicial, string dataFinal);
     Task<ContaCorrente> RealizarDeposito(int agencia, int conta, decimal valorDeposito);

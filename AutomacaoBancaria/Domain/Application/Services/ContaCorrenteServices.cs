@@ -10,9 +10,21 @@ public class ContaCorrenteServices : IContaCorrenteServices
     {
         _contaCorrenteRepository = contaCorrenteRepository;
     }
-    public async Task ValidarContaCorrente(ContaCorrente contaCorrente)
+    public async Task<ContaCorrente> ValidarContaCorrente(ContaCorrente contaCorrente)
     {
-        await _contaCorrenteRepository.CriarContaCorrente(contaCorrente);
+        try
+        {
+            await _contaCorrenteRepository.CriarContaCorrente(contaCorrente);
+            return contaCorrente;
+        }
+        catch (Exception e)
+        {
+            var erro = new ContaCorrente();
+            erro.Erro = true;
+            erro.Mensagem = e.Message;
+            Console.WriteLine(e);
+            return erro;
+        }
     }
     public async Task<ContaCorrente> ConsultarSaldo(int agencia, int conta)
     {
